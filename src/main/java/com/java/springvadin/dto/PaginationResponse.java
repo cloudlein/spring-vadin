@@ -11,7 +11,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class PaginationResponse {
+public class PaginationResponse<T> {
     private List<T> content;
     private int currentPage;
     private int totalPages;

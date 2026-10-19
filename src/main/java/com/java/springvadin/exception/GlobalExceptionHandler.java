@@ -1,8 +1,8 @@
 package com.java.springvadin.exception;
 
+import com.java.springvadin.dto.ApiResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.coyote.BadRequestException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
@@ -46,7 +46,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(ResourceNotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    public ResponseEntity<ApiResponse<Object>> handleNotFoundException(ResourceNotFoundException ex, HttpServletRequest request) {
+    public ResponseEntity<ApiResponse<Object>> handleResourceNotFoundException(ResourceNotFoundException ex, HttpServletRequest request) {
         log.warn("Resource not found at {}: {}", request.getRequestURI(), ex.getMessage());
         return new ResponseEntity<>(ApiResponse.error(ex.getMessage(), null, request.getRequestURI()), HttpStatus.NOT_FOUND);
     }
@@ -63,5 +63,12 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ApiResponse<Object>> handleAllExceptions(Exception ex, HttpServletRequest request) {
         log.error("Unexpected error at {}", request.getRequestURI(), ex);
         return new ResponseEntity<>(ApiResponse.error("An unexpected error occurred", null, request.getRequestURI()), HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @ExceptionHandler(ResourceAlreadyExistsException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ResponseEntity<ApiResponse<Object>> handleResourceAlreadyExistsException(ResourceAlreadyExistsException ex, HttpServletRequest request) {
+        log.warn("Resource already exists at {}: {}", request.getRequestURI(), ex.getMessage());
+        return new ResponseEntity<>(ApiResponse.error(ex.getMessage(), null, request.getRequestURI()), HttpStatus.BAD_REQUEST);
     }
 }
