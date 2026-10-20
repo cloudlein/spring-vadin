@@ -4,7 +4,10 @@ import com.java.springvadin.dto.user.UserCreateRequest;
 import com.java.springvadin.dto.user.UserResponse;
 import com.java.springvadin.dto.user.UserUpdateRequest;
 import com.java.springvadin.exception.ResourceAlreadyExistsException;
+import com.java.springvadin.exception.ResourceNotFoundException;
 import com.java.springvadin.mapper.UserMapper;
+import com.java.springvadin.model.Role;
+import com.java.springvadin.model.User;
 import com.java.springvadin.repository.RoleRepository;
 import com.java.springvadin.repository.UserRepository;
 import com.java.springvadin.service.UserService;
@@ -36,41 +39,93 @@ public class UserServiceImpl implements UserService {
         if (checkIfEmailAlreadyExists(request.getEmail())) {
             throw new ResourceAlreadyExistsException("email already exists");
         }
-        
 
+        User user = userMapper.toEntity(request);
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        if (request.getRoleId() != null) {
+            Role role = roleRepository.findById(request.getRoleId())
+                    .orElseThrow(() -> new ResourceNotFoundException("role not found"));
+            user.setRole(role);
+        }
+
+        userRepository.save(user);
 
     }
 
     @Override
     public void update(Long id, UserUpdateRequest request) {
+        User user = checkIfUserExists(id);
+        if (request.getName() != null && !request.getName().equals(user.getName())) {
+            if (checkIfNameAlreadyExists(request.getName())) {
+                throw new ResourceAlreadyExistsException("name already exists");
+            }
+            user.setName(request.getName());
+        }
 
+        if (request.getUsername() != null && !request.getUsername().equals(user.getUsername())) {
+            if (checkIfUsernameAlreadyExists(request.getUsername())) {
+                throw new ResourceAlreadyExistsException("username already exists");
+            }
+            user.setUsername(request.getUsername());
+        }
+
+        if (request.getEmail() != null && !request.getEmail().equals(user.getEmail())) {
+            if (checkIfEmailAlreadyExists(request.getEmail())) {
+                throw new ResourceAlreadyExistsException("email already exists");
+            }
+            user.setEmail(request.getEmail());
+        }
+
+        if (request.getPassword() != null && !request.getPassword().isBlank()) {
+            user.setPassword(passwordEncoder.encode(request.getPassword()));
+        }
+
+        if (request.getRoleId() != null && (user.getRole() == null || !request.getRoleId().equals(user.getRole().getId()))) {
+            Role role = roleRepository.findById(request.getRoleId()).orElseThrow(() -> new ResourceNotFoundException("role not found"));
+            user.setRole(role);
+        }
+
+        userRepository.save(user);
     }
 
     @Override
     public void delete(Long id) {
-
+        User user = checkIfUserExists(id);
+        userRepository.delete(user);
     }
 
     @Override
     public UserResponse getById(Long id) {
-        return null;
+        User user = checkIfUserExists(id);
+        return userMapper.toResponse(user);
     }
 
     @Override
     public Page<UserResponse> getAll(String search, Pageable pageable) {
-        return null;
+        Page<User> userPage;
+        if (search != null && !search.trim().isEmpty()) {
+            userPage = userRepository.getAllUserByNameUsernameEmail(search, pageable);
+        }else {
+            userPage = userRepository.findAll(pageable);
+        }
+
+        return  userPage.map(userMapper::toResponse);
     }
 
     private Boolean checkIfEmailAlreadyExists(String email) {
-        return userRepository.checkIfEmailExists(email);
+        return userRepository.existsByEmail(email);
     }
 
     private Boolean checkIfNameAlreadyExists(String name) {
-        return userRepository.checkIfNameAlreadyExists(name);
+        return userRepository.existsByName(name);
     }
 
     private Boolean checkIfUsernameAlreadyExists(String username) {
-        return userRepository.checkIfUsernameAlreadyExists(username);
+        return userRepository.existsByUsername(username);
+    }
+
+    private User checkIfUserExists(Long id) {
+        return userRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("User not found"));
     }
 
 }

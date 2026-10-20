@@ -1,6 +1,7 @@
 package com.java.springvadin.dto.role;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import lombok.*;
 
 @Data
@@ -9,7 +10,8 @@ import lombok.*;
 @Builder
 public class RoleCreateRequest {
 
-    @NotBlank(message = "Role is required")
+    @NotBlank(message = "Role name is required")
+    @Size(max = 255, message = "Role name must not exceed 255 characters")
     private String roleName;
 
 }

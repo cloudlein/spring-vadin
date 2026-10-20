@@ -1,7 +1,11 @@
 package com.java.springvadin.repository;
 
 import com.java.springvadin.model.User;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
@@ -9,9 +13,17 @@ import java.util.Optional;
 @Repository
 public interface UserRepository extends JpaRepository<User,Long> {
 
-    Boolean checkIfUsernameAlreadyExists(String username);
-    Boolean checkIfNameAlreadyExists(String username);
-    Boolean checkIfEmailExists(String email);
+    Boolean existsByName(String name);
+    Boolean existsByUsername(String username);
+    Boolean existsByEmail(String email);
 
     Optional<User> findByUsername(String username);
+
+    @Query(
+            "SELECT u FROM user u WHERE " +
+                    "LOWER(u.name) LIKE(CONCAT('%', :keyword, '%')) OR " +
+                    "LOWER(u.username) LIKE(CONCAT('%', :keyword, '%')) OR " +
+                    "LOWER(u.email) LIKE(CONCAT('%', :keyword, '%')) "
+    )
+    Page<User> getAllUserByNameUsernameEmail(@Param("keyword") String keyword, Pageable pageable);
 }

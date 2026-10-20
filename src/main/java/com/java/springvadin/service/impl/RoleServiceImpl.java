@@ -36,31 +36,29 @@ public class RoleServiceImpl implements RoleService {
     public void update(Long id, RoleUpdateRequest request) {
         Role role = checkIfRoleExists(id);
 
-        if (checkIfRoleAlreadyExists(request.getRoleName())) {
-            throw new ResourceAlreadyExistsException("Role already in use");
+
+        if (request.getRoleName() != null && !request.getRoleName().equals(role.getRole())) {
+            if (checkIfRoleAlreadyExists(request.getRoleName())) {
+                throw new ResourceAlreadyExistsException("Role already in use");
+            }
+            role.setRole(request.getRoleName());
         }
 
-        role.setRole(request.getRoleName());
+
         roleRepository.save(role);
 
     }
 
     @Override
     public void delete(Long id) {
-        if (!roleRepository.existsById(id)) {
-            throw new ResourceNotFoundException("Role not found");
-        }
-
-        roleRepository.deleteById(id);
+        Role role = checkIfRoleExists(id);
+        roleRepository.delete(role);
     }
 
     @Override
     public RoleResponse getById(Long id) {
        Role role = checkIfRoleExists(id);
-
-       return roleRepository.findById(id)
-               .map(roleMapper::toResponse)
-               .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + id));
+       return roleMapper.toResponse(role);
     }
 
     @Override
@@ -77,7 +75,7 @@ public class RoleServiceImpl implements RoleService {
 
 
     private Boolean checkIfRoleAlreadyExists(String roleName) {
-        return roleRepository.existByRoleName(roleName);
+        return roleRepository.existsByRoleName(roleName);
     }
 
     private Role checkIfRoleExists(Long roleId) {

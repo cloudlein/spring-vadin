@@ -71,4 +71,11 @@ public class GlobalExceptionHandler {
         log.warn("Resource already exists at {}: {}", request.getRequestURI(), ex.getMessage());
         return new ResponseEntity<>(ApiResponse.error(ex.getMessage(), null, request.getRequestURI()), HttpStatus.BAD_REQUEST);
     }
+
+    @ExceptionHandler(PasswordMismatchException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ResponseEntity<ApiResponse<Object>> handlePasswordMismatchException(PasswordMismatchException ex, HttpServletRequest request) {
+        log.warn("Password mismatch at {}: {}", request.getRequestURI(), ex.getMessage());
+        return new ResponseEntity<>(ApiResponse.error(ex.getMessage(), null, request.getRequestURI()), HttpStatus.BAD_REQUEST);
+    }
 }

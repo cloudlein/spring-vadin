@@ -11,7 +11,7 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface RoleRepository extends JpaRepository<Role,Long> {
 
-    Boolean existByRoleName(String roleName);
+    Boolean existsByRoleName(String roleName);
 
     @Query("SELECT r FROM role r WHERE " +
             "LOWER(r.name) LIKE(CONCAT('%', :keywoard, '%'))")
