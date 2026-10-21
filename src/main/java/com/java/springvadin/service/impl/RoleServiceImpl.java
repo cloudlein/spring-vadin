@@ -75,7 +75,7 @@ public class RoleServiceImpl implements RoleService {
 
 
     private Boolean checkIfRoleAlreadyExists(String roleName) {
-        return roleRepository.existsByRoleName(roleName);
+        return roleRepository.existsByRole(roleName);
     }
 
     private Role checkIfRoleExists(Long roleId) {

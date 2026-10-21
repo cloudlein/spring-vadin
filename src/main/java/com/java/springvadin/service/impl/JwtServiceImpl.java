@@ -31,7 +31,6 @@ public class JwtServiceImpl implements JwtService {
     @Value("${application.security.jwt.refresh-token.expiration}")
     private long refreshExpiration;
 
-
     @Override
     public String extractUsername(String token) {
         return extractClaim(token, Claims::getSubject);

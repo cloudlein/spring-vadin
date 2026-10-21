@@ -1,22 +1,25 @@
 package com.java.springvadin.model;
 
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
+
+import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "users")
+@Table(name = "roles")
 @Setter
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
-public class Role {
-    private Long id;
+public class Role extends BaseModel {
+
     private String role;
 }

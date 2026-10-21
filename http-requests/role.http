@@ -1,0 +1,72 @@
+### ====================================================================
+### ROLE MANAGEMENT API TEST SUITE
+### Base URL: {{baseUrl}}/roles
+### Requires: Bearer {{auth_token}} (run auth.http -> Login first)
+### ====================================================================
+
+### 1. Get All Roles (Paginated)
+# @name getAllRoles
+GET {{baseUrl}}/roles?page=0&size=10
+Authorization: Bearer {{auth_token}}
+Accept: application/json
+
+> {%
+    client.test("Get all roles returns 200", function() {
+        client.assert(response.status === 200, "Response status is not 200");
+    });
+%}
+
+### 2. Create Role
+# @name createRole
+POST {{baseUrl}}/roles
+Authorization: Bearer {{auth_token}}
+Content-Type: application/json
+
+{
+  "role": "ROLE_MANAGER_{{$random.alphabetic(3)}}"
+}
+
+> {%
+    client.test("Create role returns 200/201", function() {
+        client.assert(response.status === 200 || response.status === 201, "Status was " + response.status);
+    });
+%}
+
+### 3. Get Role by ID
+# @name getRoleById
+GET {{baseUrl}}/roles/1
+Authorization: Bearer {{auth_token}}
+Accept: application/json
+
+> {%
+    client.test("Get role by ID returns 200", function() {
+        client.assert(response.status === 200, "Response status is not 200");
+    });
+%}
+
+### 4. Update Role
+# @name updateRole
+PUT {{baseUrl}}/roles/1
+Authorization: Bearer {{auth_token}}
+Content-Type: application/json
+
+{
+  "role": "ROLE_UPDATED_NAME"
+}
+
+> {%
+    client.test("Update role returns 200", function() {
+        client.assert(response.status === 200, "Response status is not 200");
+    });
+%}
+
+### 5. Delete Role
+# @name deleteRole
+DELETE {{baseUrl}}/roles/1
+Authorization: Bearer {{auth_token}}
+
+> {%
+    client.test("Delete role returns 200/204", function() {
+        client.assert(response.status === 200 || response.status === 204, "Response status was " + response.status);
+    });
+%}

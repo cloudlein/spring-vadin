@@ -51,3 +51,4 @@ tsconfig.json
 types.d.ts
 
 .env
+http-client.private.env.json

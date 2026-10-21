@@ -1,0 +1,125 @@
+### ====================================================================
+### AUTHENTICATION API TEST SUITE
+### Base URL: {{baseUrl}}/auth
+### ====================================================================
+
+### 1. Register User (Happy Path)
+# @name registerUser
+POST {{baseUrl}}/auth/register
+Content-Type: application/json
+
+{
+  "name": "Super Admin",
+  "username": "admin_{{$random.alphabetic(4)}}",
+  "email": "admin_{{$random.alphabetic(4)}}@example.com",
+  "password": "Password123!",
+  "confirmPassword": "Password123!"
+}
+
+> {%
+    client.test("Register response status should be 200", function() {
+        client.assert(response.status === 200, "Expected status 200 but received " + response.status);
+        client.assert(response.body.success === true, "Response success flag is false");
+    });
+%}
+
+### 2. Login (Auto-extract Token to Global Variable)
+# @name loginUser
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "username": "{{default_username}}",
+  "password": "{{default_password}}"
+}
+
+> {%
+    client.test("Login successfully and extract tokens", function() {
+        client.assert(response.status === 200, "Login failed with status " + response.status);
+        client.assert(response.body.data && response.body.data.token, "Access token not found in response data");
+
+        // Save token to global variables for subsequent requests
+        client.global.set("auth_token", response.body.data.token);
+        if (response.body.data.refreshToken) {
+            client.global.set("refresh_token", response.body.data.refreshToken);
+        }
+        client.log("JWT Auth Token successfully stored to global variable: " + client.global.get("auth_token").substring(0, 15) + "...");
+    });
+%}
+
+### 3. Logout (Authenticated with Bearer Token)
+# @name logoutUser
+POST {{baseUrl}}/auth/logout
+Authorization: Bearer {{auth_token}}
+
+> {%
+    client.test("Logout success", function() {
+        client.assert(response.status === 200, "Logout returned status " + response.status);
+        client.assert(response.body.success === true, "Response success flag is not true");
+    });
+%}
+
+### ====================================================================
+### NEGATIVE / VALIDATION TEST CASES
+### ====================================================================
+
+### 4. [Negative] Register with Password Mismatch
+POST {{baseUrl}}/auth/register
+Content-Type: application/json
+
+{
+  "name": "Test User",
+  "username": "test_{{$random.alphabetic(4)}}",
+  "email": "test_{{$random.alphabetic(4)}}@example.com",
+  "password": "Password123!",
+  "confirmPassword": "MismatchPassword123!"
+}
+
+> {%
+    client.test("Register should fail with 400 Bad Request", function() {
+        client.assert(response.status === 400, "Expected status 400 on password mismatch, got " + response.status);
+        client.assert(response.body.success === false, "Response success should be false");
+    });
+%}
+
+### 5. [Negative] Register with Invalid Email Format
+POST {{baseUrl}}/auth/register
+Content-Type: application/json
+
+{
+  "name": "Invalid Email",
+  "username": "user_{{$random.alphabetic(4)}}",
+  "email": "not-an-email",
+  "password": "Password123!",
+  "confirmPassword": "Password123!"
+}
+
+> {%
+    client.test("Register should fail on invalid email format", function() {
+        client.assert(response.status === 400, "Expected status 400, got " + response.status);
+    });
+%}
+
+### 6. [Negative] Login with Invalid Credentials
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "username": "non_existent_user",
+  "password": "WrongPassword123!"
+}
+
+> {%
+    client.test("Login should fail for invalid credentials", function() {
+        client.assert(response.status === 400 || response.status === 401, "Expected 400 or 401, got " + response.status);
+    });
+%}
+
+### 7. [Negative] Logout without Bearer Token
+POST {{baseUrl}}/auth/logout
+
+> {%
+    client.test("Logout should fail without Authorization header", function() {
+        client.assert(response.status === 400 || response.status === 403, "Expected 400 or 403, got " + response.status);
+    });
+%}

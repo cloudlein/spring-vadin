@@ -8,13 +8,16 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.Optional;
+
 @Repository
 public interface RoleRepository extends JpaRepository<Role,Long> {
 
-    Boolean existsByRoleName(String roleName);
+    Boolean existsByRole(String role);
 
-    @Query("SELECT r FROM role r WHERE " +
-            "LOWER(r.name) LIKE(CONCAT('%', :keywoard, '%'))")
+    Optional<Role> findByRole(String role);
+
+    @Query("SELECT r FROM Role r WHERE LOWER(r.role) LIKE(CONCAT('%', :keyword, '%'))")
     Page<Role> getAllByRoleName(@Param("keyword") String keyword, Pageable pageable);
 
 }

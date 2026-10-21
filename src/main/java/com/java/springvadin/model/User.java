@@ -11,9 +11,8 @@ import lombok.experimental.SuperBuilder;
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
-public class User {
+public class User extends BaseModel {
 
-    private Long id;
 
     private String username;
 
