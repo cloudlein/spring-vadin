@@ -16,6 +16,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -26,6 +27,7 @@ public class UserServiceImpl implements UserService {
     private final UserMapper userMapper;
     private final PasswordEncoder passwordEncoder;
 
+    @Transactional
     @Override
     public void create(UserCreateRequest request) {
         if (checkIfNameAlreadyExists(request.getName())) {
@@ -52,6 +54,7 @@ public class UserServiceImpl implements UserService {
 
     }
 
+    @Transactional
     @Override
     public void update(Long id, UserUpdateRequest request) {
         User user = checkIfUserExists(id);
@@ -88,18 +91,21 @@ public class UserServiceImpl implements UserService {
         userRepository.save(user);
     }
 
+    @Transactional
     @Override
     public void delete(Long id) {
         User user = checkIfUserExists(id);
         userRepository.delete(user);
     }
 
+    @Transactional(readOnly = true)
     @Override
     public UserResponse getById(Long id) {
         User user = checkIfUserExists(id);
         return userMapper.toResponse(user);
     }
 
+    @Transactional(readOnly = true)
     @Override
     public Page<UserResponse> getAll(String search, Pageable pageable) {
         Page<User> userPage;

@@ -21,6 +21,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @RequiredArgsConstructor
 @Service
@@ -33,6 +34,7 @@ public class AuthServiceImpl implements AuthService {
     private final PasswordEncoder passwordEncoder;
     private final RoleRepository roleRepository;
     private final TokenBlacklistService tokenBlacklistService;
+
 
     @Override
     public AuthResponse login(LoginRequest loginRequest) {
@@ -53,6 +55,7 @@ public class AuthServiceImpl implements AuthService {
                 .build();
     }
 
+    @Transactional()
     @Override
     public AuthResponse register(RegisterRequest registerRequest) {
         if (userRepository.existsByName(registerRequest.getName())) {

@@ -14,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -22,6 +23,7 @@ public class RoleServiceImpl implements RoleService {
     private final RoleRepository roleRepository;
     private final RoleMapper roleMapper;
 
+    @Transactional
     @Override
     public void create(RoleCreateRequest request) {
         if (checkIfRoleAlreadyExists(request.getRoleName())) {
@@ -32,6 +34,7 @@ public class RoleServiceImpl implements RoleService {
         roleRepository.save(role);
     }
 
+    @Transactional
     @Override
     public void update(Long id, RoleUpdateRequest request) {
         Role role = checkIfRoleExists(id);
@@ -49,18 +52,21 @@ public class RoleServiceImpl implements RoleService {
 
     }
 
+    @Transactional
     @Override
     public void delete(Long id) {
         Role role = checkIfRoleExists(id);
         roleRepository.delete(role);
     }
 
+    @Transactional(readOnly = true)
     @Override
     public RoleResponse getById(Long id) {
        Role role = checkIfRoleExists(id);
        return roleMapper.toResponse(role);
     }
 
+    @Transactional(readOnly = true)
     @Override
     public Page<RoleResponse> getAll(String search, Pageable pageable) {
        Page<Role> rolePage;
