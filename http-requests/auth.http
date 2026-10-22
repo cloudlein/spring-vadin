@@ -59,6 +59,28 @@ Authorization: Bearer {{auth_token}}
     });
 %}
 
+### 4. Refresh Token (Exchange Refresh Token for New Access Token)
+# @name refreshToken
+POST {{baseUrl}}/auth/refresh-token
+Content-Type: application/json
+
+{
+  "refreshToken": "{{refresh_token}}"
+}
+
+> {%
+    client.test("Refresh token successfully and update tokens", function() {
+        client.assert(response.status === 200, "Refresh token failed with status " + response.status);
+        client.assert(response.body.data && response.body.data.token, "New access token not found in response");
+
+        client.global.set("auth_token", response.body.data.token);
+        if (response.body.data.refreshToken) {
+            client.global.set("refresh_token", response.body.data.refreshToken);
+        }
+        client.log("JWT Auth Token refreshed successfully: " + client.global.get("auth_token").substring(0, 15) + "...");
+    });
+%}
+
 ### ====================================================================
 ### NEGATIVE / VALIDATION TEST CASES
 ### ====================================================================
@@ -115,11 +137,40 @@ Content-Type: application/json
     });
 %}
 
-### 7. [Negative] Logout without Bearer Token
+### 8. [Negative] Logout without Bearer Token
 POST {{baseUrl}}/auth/logout
 
 > {%
     client.test("Logout should fail without Authorization header", function() {
         client.assert(response.status === 400 || response.status === 403, "Expected 400 or 403, got " + response.status);
+    });
+%}
+
+### 9. [Negative] Refresh Token with Invalid/Forged Token
+POST {{baseUrl}}/auth/refresh-token
+Content-Type: application/json
+
+{
+  "refreshToken": "invalid.jwt.token.here"
+}
+
+> {%
+    client.test("Refresh token should fail with 401 Unauthorized", function() {
+        client.assert(response.status === 401, "Expected 401 Unauthorized on invalid refresh token, got " + response.status);
+        client.assert(response.body.success === false, "Response success should be false");
+    });
+%}
+
+### 10. [Negative] Refresh Token with Blank Value
+POST {{baseUrl}}/auth/refresh-token
+Content-Type: application/json
+
+{
+  "refreshToken": ""
+}
+
+> {%
+    client.test("Refresh token should fail validation with 400 Bad Request", function() {
+        client.assert(response.status === 400, "Expected 400 Bad Request on blank refresh token, got " + response.status);
     });
 %}

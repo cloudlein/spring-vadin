@@ -50,7 +50,7 @@ public class RoleController {
     }
 
     @GetMapping("/{id}")
-    public ApiResponse<RoleResponse> getRole(@PathVariable Long id) {
+    public ApiResponse<RoleResponse> getRoleById(@PathVariable Long id) {
         return ApiResponse.success("Role retrieved successfully",  roleService.getById(id));
     }
 

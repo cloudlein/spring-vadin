@@ -12,11 +12,13 @@ This directory contains `.http` API testing suites configured for the `spring-va
 
 ```text
 http-requests/
-├── http-client.env.json      # Environment configurations (local, dev) and variables
-├── auth.http                 # Authentication API tests (Register, Login, Logout, Validations)
-├── user.http                 # User Management API tests (CRUD, Pagination, Unauthorized access)
-├── role.http                 # Role Management API tests (CRUD, Pagination)
-└── README.md                 # Usage documentation
+├── http-client.env.json                 # Environment configurations (local, dev) and variables
+├── auth.http                            # Authentication API tests (Register, Login, Logout, Validations)
+├── user.http                            # User Management API tests (CRUD, Pagination, Unauthorized access)
+├── role.http                            # Role Management API tests (CRUD, Pagination)
+├── Spring_Vadin_API.postman_collection.json # Postman Collection v2.1 (Full API + Scripts + Tests)
+├── Spring_Vadin_Local.postman_environment.json # Postman Environment (Localhost)
+└── README.md                            # Usage documentation
 ```
 
 ---

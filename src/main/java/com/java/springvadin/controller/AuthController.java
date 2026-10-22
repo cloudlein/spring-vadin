@@ -3,6 +3,7 @@ package com.java.springvadin.controller;
 import com.java.springvadin.dto.ApiResponse;
 import com.java.springvadin.dto.auth.AuthResponse;
 import com.java.springvadin.dto.auth.LoginRequest;
+import com.java.springvadin.dto.auth.RefreshTokenRequest;
 import com.java.springvadin.dto.auth.RegisterRequest;
 import com.java.springvadin.service.AuthService;
 import jakarta.validation.Valid;
@@ -35,6 +36,11 @@ public class AuthController {
 
         authService.logout(authHeader.substring(7));
         return ApiResponse.success("logout success", null);
+    }
+
+    @PostMapping("/refresh-token")
+    public ApiResponse<AuthResponse> refreshToken(@Valid @RequestBody RefreshTokenRequest refreshTokenRequest) {
+        return ApiResponse.success( authService.refreshToken(refreshTokenRequest.getRefreshToken()));
     }
 
 }

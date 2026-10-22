@@ -1,12 +1,12 @@
 ### ====================================================================
 ### USER MANAGEMENT API TEST SUITE
-### Base URL: {{baseUrl}}/users
+### Base URL: {{baseUrl}}/user
 ### Requires: Bearer {{auth_token}} (run auth.http -> Login first)
 ### ====================================================================
 
 ### 1. Get All Users (Paginated & Search)
 # @name getAllUsers
-GET {{baseUrl}}/users?page=0&size=10&search=
+GET {{baseUrl}}/user?page=0&size=10&search=
 Authorization: Bearer {{auth_token}}
 Accept: application/json
 
@@ -18,7 +18,7 @@ Accept: application/json
 
 ### 2. Create User
 # @name createUser
-POST {{baseUrl}}/users
+POST {{baseUrl}}/user
 Authorization: Bearer {{auth_token}}
 Content-Type: application/json
 
@@ -38,7 +38,7 @@ Content-Type: application/json
 
 ### 3. Get User by ID
 # @name getUserById
-GET {{baseUrl}}/users/1
+GET {{baseUrl}}/user/1
 Authorization: Bearer {{auth_token}}
 Accept: application/json
 
@@ -50,7 +50,7 @@ Accept: application/json
 
 ### 4. Update User
 # @name updateUser
-PUT {{baseUrl}}/users/1
+PATCH {{baseUrl}}/user/1
 Authorization: Bearer {{auth_token}}
 Content-Type: application/json
 
@@ -70,7 +70,7 @@ Content-Type: application/json
 
 ### 5. Delete User
 # @name deleteUser
-DELETE {{baseUrl}}/users/1
+DELETE {{baseUrl}}/user/1
 Authorization: Bearer {{auth_token}}
 
 > {%
@@ -80,7 +80,7 @@ Authorization: Bearer {{auth_token}}
 %}
 
 ### 6. [Negative] Unauthorized Access without Token
-GET {{baseUrl}}/users
+GET {{baseUrl}}/user
 Accept: application/json
 
 > {%

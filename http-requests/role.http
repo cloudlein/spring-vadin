@@ -1,12 +1,12 @@
 ### ====================================================================
 ### ROLE MANAGEMENT API TEST SUITE
-### Base URL: {{baseUrl}}/roles
+### Base URL: {{baseUrl}}/role
 ### Requires: Bearer {{auth_token}} (run auth.http -> Login first)
 ### ====================================================================
 
 ### 1. Get All Roles (Paginated)
 # @name getAllRoles
-GET {{baseUrl}}/roles?page=0&size=10
+GET {{baseUrl}}/role?page=0&size=10
 Authorization: Bearer {{auth_token}}
 Accept: application/json
 
@@ -18,12 +18,12 @@ Accept: application/json
 
 ### 2. Create Role
 # @name createRole
-POST {{baseUrl}}/roles
+POST {{baseUrl}}/role
 Authorization: Bearer {{auth_token}}
 Content-Type: application/json
 
 {
-  "role": "ROLE_MANAGER_{{$random.alphabetic(3)}}"
+  "roleName": "ROLE_TEST_{{$random.alphabetic(3)}}"
 }
 
 > {%
@@ -34,7 +34,7 @@ Content-Type: application/json
 
 ### 3. Get Role by ID
 # @name getRoleById
-GET {{baseUrl}}/roles/1
+GET {{baseUrl}}/role/1
 Authorization: Bearer {{auth_token}}
 Accept: application/json
 
@@ -46,12 +46,12 @@ Accept: application/json
 
 ### 4. Update Role
 # @name updateRole
-PUT {{baseUrl}}/roles/1
+PATCH {{baseUrl}}/role/1
 Authorization: Bearer {{auth_token}}
 Content-Type: application/json
 
 {
-  "role": "ROLE_UPDATED_NAME"
+  "roleName": "ROLE_UPDATED_NAME"
 }
 
 > {%
@@ -62,7 +62,7 @@ Content-Type: application/json
 
 ### 5. Delete Role
 # @name deleteRole
-DELETE {{baseUrl}}/roles/1
+DELETE {{baseUrl}}/role/1
 Authorization: Bearer {{auth_token}}
 
 > {%

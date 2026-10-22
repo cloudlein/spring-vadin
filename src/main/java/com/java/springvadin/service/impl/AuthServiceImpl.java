@@ -3,6 +3,7 @@ package com.java.springvadin.service.impl;
 import com.java.springvadin.dto.auth.AuthResponse;
 import com.java.springvadin.dto.auth.LoginRequest;
 import com.java.springvadin.dto.auth.RegisterRequest;
+import com.java.springvadin.exception.InvalidTokenException;
 import com.java.springvadin.exception.ResourceAlreadyExistsException;
 import com.java.springvadin.exception.ResourceNotFoundException;
 import com.java.springvadin.mapper.UserMapper;
@@ -13,12 +14,14 @@ import com.java.springvadin.repository.UserRepository;
 import com.java.springvadin.service.AuthService;
 import com.java.springvadin.service.JwtService;
 import com.java.springvadin.service.TokenBlacklistService;
+import com.java.springvadin.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -34,6 +37,8 @@ public class AuthServiceImpl implements AuthService {
     private final PasswordEncoder passwordEncoder;
     private final RoleRepository roleRepository;
     private final TokenBlacklistService tokenBlacklistService;
+    private final UserService userService;
+    private final UserDetailsService userDetailsService;
 
 
     @Override
@@ -46,7 +51,7 @@ public class AuthServiceImpl implements AuthService {
 
         UserDetails userDetails = (UserDetails) authentication.getPrincipal();
         String accessToken = jwtService.generateToken(userDetails);
-        String refreshToken = jwtService.generateToken(userDetails);
+        String refreshToken = jwtService.generateTokenRefresh(userDetails);
 
         return AuthResponse.builder()
                 .message("login successful")
@@ -91,5 +96,29 @@ public class AuthServiceImpl implements AuthService {
             tokenBlacklistService.addToBlacklist(token,remainingMillis);
         }
         SecurityContextHolder.clearContext();
+    }
+
+    @Override
+    public AuthResponse refreshToken(String refreshToken) {
+        if (tokenBlacklistService.isBlacklisted(refreshToken)) {
+            throw new InvalidTokenException("invalid token");
+        }
+
+        String username = jwtService.extractUsername(refreshToken);
+        UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+        if (!jwtService.isValidToken(refreshToken, userDetails)) {
+            throw new InvalidTokenException("invalid token");
+        }
+
+        String newAccessToken = jwtService.generateToken(userDetails);
+        String newRefreshToken = jwtService.generateTokenRefresh(userDetails);
+
+        return AuthResponse.builder()
+                .message("refresh successful")
+                .token(newAccessToken)
+                .refreshToken(newRefreshToken)
+                .build();
+
+
     }
 }

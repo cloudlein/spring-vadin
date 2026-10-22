@@ -1,11 +1,15 @@
 package com.java.springvadin.config;
 
+import com.java.springvadin.model.RoleType;
 import com.java.springvadin.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
+import org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.authentication.InternalAuthenticationServiceException;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
@@ -15,6 +19,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -23,6 +28,7 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import java.util.Collections;
+import java.util.List;
 
 @RequiredArgsConstructor
 @EnableWebSecurity
@@ -69,16 +75,34 @@ public class SecurityConfig {
     @Bean
     public UserDetailsService userDetailsService() {
         return username -> userRepository.findByUsername(username)
-                .map(user -> org.springframework.security.core.userdetails.User.builder()
-                        .username(user.getUsername())
-                        .password(user.getPassword())
-                        .authorities(user.getRole() != null && user.getRole().getRole() != null
-                                ? Collections.singletonList(new SimpleGrantedAuthority(
-                                        user.getRole().getRole().startsWith("ROLE_")
-                                                ? user.getRole().getRole()
-                                                : "ROLE_" + user.getRole().getRole()))
-                                : Collections.emptyList())
-                        .build())
+                .map(user -> {
+                    List<SimpleGrantedAuthority> authorities = new java.util.ArrayList<>();
+
+                    if (user.getRole() != null && user.getRole().getRole() != null) {
+                        String rawRole = user.getRole().getRole().trim();
+                        String roleName = rawRole.toUpperCase().startsWith("ROLE_")
+                                ? rawRole.substring(5).toUpperCase()
+                                : rawRole.toUpperCase();
+                        authorities.add(new SimpleGrantedAuthority("ROLE_" + roleName));
+                        RoleType roleType;
+                        try {
+                            roleType = RoleType.valueOf(roleName);
+                        } catch (IllegalArgumentException e) {
+                            throw new InternalAuthenticationServiceException(
+                                    "Role '" + roleName + "' is not defined in RoleType for user '" + username + "'", e);
+                        }
+
+                        for (String perm : roleType.getPermissions()) {
+                            authorities.add(new SimpleGrantedAuthority(perm));
+                        }
+                    }
+
+                    return new org.springframework.security.core.userdetails.User(
+                            user.getUsername(),
+                            user.getPassword(),
+                            authorities
+                    );
+                })
                 .orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));
     }
 

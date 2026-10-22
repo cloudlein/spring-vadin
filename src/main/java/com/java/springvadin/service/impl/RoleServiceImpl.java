@@ -13,6 +13,7 @@ import com.java.springvadin.service.RoleService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,6 +24,7 @@ public class RoleServiceImpl implements RoleService {
     private final RoleRepository roleRepository;
     private final RoleMapper roleMapper;
 
+    @PreAuthorize("hasAuthority('ROLE_WRITE')")
     @Transactional
     @Override
     public void create(RoleCreateRequest request) {
@@ -34,6 +36,7 @@ public class RoleServiceImpl implements RoleService {
         roleRepository.save(role);
     }
 
+    @PreAuthorize("hasAuthority('ROLE_WRITE')")
     @Transactional
     @Override
     public void update(Long id, RoleUpdateRequest request) {
@@ -52,6 +55,7 @@ public class RoleServiceImpl implements RoleService {
 
     }
 
+    @PreAuthorize("hasAuthority('ROLE_DELETE')")
     @Transactional
     @Override
     public void delete(Long id) {
@@ -59,6 +63,7 @@ public class RoleServiceImpl implements RoleService {
         roleRepository.delete(role);
     }
 
+    @PreAuthorize("hasAuthority('ROLE_READ')")
     @Transactional(readOnly = true)
     @Override
     public RoleResponse getById(Long id) {
@@ -66,6 +71,7 @@ public class RoleServiceImpl implements RoleService {
        return roleMapper.toResponse(role);
     }
 
+    @PreAuthorize("hasAuthority('ROLE_READ')")
     @Transactional(readOnly = true)
     @Override
     public Page<RoleResponse> getAll(String search, Pageable pageable) {

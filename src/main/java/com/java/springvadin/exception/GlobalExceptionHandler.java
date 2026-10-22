@@ -78,4 +78,11 @@ public class GlobalExceptionHandler {
         log.warn("Password mismatch at {}: {}", request.getRequestURI(), ex.getMessage());
         return new ResponseEntity<>(ApiResponse.error(ex.getMessage(), null, request.getRequestURI()), HttpStatus.BAD_REQUEST);
     }
+
+    @ExceptionHandler(InvalidTokenException.class)
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    public ResponseEntity<ApiResponse<Object>> handleInvalidTokenException(InvalidTokenException ex, HttpServletRequest request) {
+        log.warn("invalid token at {}: {}", request.getRequestURI(), ex.getMessage());
+        return new ResponseEntity<>(ApiResponse.error(ex.getMessage(), null, request.getRequestURI()), HttpStatus.UNAUTHORIZED);
+    }
 }
