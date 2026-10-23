@@ -60,6 +60,13 @@ dependencies {
     runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.13.0'
     runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.13.0'
 
+
+    // java otp
+    implementation 'com.eatthepath:java-otp:1.0.0'
+
+    //qr code
+    implementation 'com.github.kenglxn.QRGen:javase:3.0.1'
+
 }
 
 dependencyManagement {

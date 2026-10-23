@@ -20,6 +20,7 @@ public class UserResponse {
     private String email;
     private String password;
     private String role;
+    private Boolean isTotpEnabled;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 

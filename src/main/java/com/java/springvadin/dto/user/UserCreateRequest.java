@@ -35,4 +35,7 @@ public class UserCreateRequest {
     @NotNull(message = "Role id is required")
     private Long roleId;
 
+    private Boolean isTotpEnabled;
+
+
 }

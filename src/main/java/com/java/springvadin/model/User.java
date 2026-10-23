@@ -20,6 +20,10 @@ public class User extends BaseModel {
 
     private String email;
 
+    private String totpSecret;
+
+    private Boolean isTotpEnabled;
+
     private String password;
 
     @ManyToOne(fetch = FetchType.EAGER)

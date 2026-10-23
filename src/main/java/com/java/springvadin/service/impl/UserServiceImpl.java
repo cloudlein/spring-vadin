@@ -83,6 +83,10 @@ public class UserServiceImpl implements UserService {
             user.setPassword(passwordEncoder.encode(request.getPassword()));
         }
 
+        if (request.getIsTotpEnabled() != null && !request.getIsTotpEnabled().equals(user.getIsTotpEnabled())) {
+            user.setIsTotpEnabled(request.getIsTotpEnabled());
+        }
+
         if (request.getRoleId() != null && (user.getRole() == null || !request.getRoleId().equals(user.getRole().getId()))) {
             Role role = roleRepository.findById(request.getRoleId()).orElseThrow(() -> new ResourceNotFoundException("role not found"));
             user.setRole(role);

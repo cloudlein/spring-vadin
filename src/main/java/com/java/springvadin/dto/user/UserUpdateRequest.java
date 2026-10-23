@@ -30,4 +30,5 @@ public class UserUpdateRequest {
 
     private Long roleId;
 
+    private Boolean isTotpEnabled;
 }
