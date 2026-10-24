@@ -2,6 +2,7 @@ package com.java.springvadin.config;
 
 import com.java.springvadin.service.JwtService;
 import com.java.springvadin.service.TokenBlacklistService;
+import io.jsonwebtoken.Claims;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
@@ -17,6 +18,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.Objects;
 
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
@@ -48,6 +50,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             return;
         }
 
+        if ("MFA_TEMP".equals(jwtService.extractTokenType(jwt))) {
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            return;
+        }
         try {
             String username = jwtService.extractUsername(jwt);
             if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {

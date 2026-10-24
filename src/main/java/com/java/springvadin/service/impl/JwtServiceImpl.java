@@ -31,6 +31,9 @@ public class JwtServiceImpl implements JwtService {
     @Value("${application.security.jwt.refresh-token.expiration}")
     private long refreshExpiration;
 
+    @Value("${JWT_MFA_EXPIRATION}")
+    private long jwtMfaExpiration;
+
     @Override
     public String extractUsername(String token) {
         return extractClaim(token, Claims::getSubject);
@@ -63,6 +66,23 @@ public class JwtServiceImpl implements JwtService {
         final String username = extractUsername(token);
         return (username.equals(userDetails.getUsername())) && !isTokenExpired(token);
     }
+
+    @Override
+    public String generateMfaToken(UserDetails userDetails) {
+        return Jwts.builder()
+                .claim("type", "MFA_TEMP")
+                .subject(userDetails.getUsername())
+                .issuedAt(new Date(System.currentTimeMillis()))
+                .expiration(new Date(System.currentTimeMillis() + jwtMfaExpiration))
+                .signWith(getSignKey())
+                .compact();
+    }
+
+    @Override
+    public String extractTokenType(String token) {
+        return extractClaim(token, claims -> claims.get("type", String.class));
+    }
+
 
     private SecretKey getSignKey(){
         byte[] keyBytes = Base64.getDecoder().decode(secretKey);

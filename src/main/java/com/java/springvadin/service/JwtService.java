@@ -14,4 +14,8 @@ public interface JwtService {
     String generateToken(UserDetails userDetails);
     String generateTokenRefresh(UserDetails userDetails);
     Boolean isValidToken(String token, UserDetails userDetails);
+
+    String generateMfaToken(UserDetails userDetails);
+
+    String extractTokenType(String token);
 }
